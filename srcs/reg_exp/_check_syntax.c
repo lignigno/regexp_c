@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:02:52 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/07 03:35:57 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/13 09:55:27 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,12 @@
 
 enum flag_e
 {
-	FLAG_ROUND_BRACKET			= 0b10000000,
-	FLAG_SQUARE_BRACKET			= 0b01000000,
-	FLAG_FIGURE_BRACKET			= 0b00100000,
-	FLAG_BACKSLASH				= 0b00010000,
-	FLAG_START_SQUARE_BRACKET	= 0b00001000,
-	FLAG_START_FIGURE_BRACKET	= 0b00000100,
-	FLAG_END_FIGURE_BRACKET		= 0b00000010,
-	FLAG_START_BACKSLASH		= 0b00000001,
+	FLAG_SQUARE_BRACKET			= 0b100000,
+	FLAG_FIGURE_BRACKET			= 0b010000,
+	FLAG_BACKSLASH				= 0b001000,
+	FLAG_START_FIGURE_BRACKET	= 0b000100,
+	FLAG_END_FIGURE_BRACKET		= 0b000010,
+	FLAG_START_BACKSLASH		= 0b000001,
 };
 
 // _________________________________________________________________SUBFUNCTIONS
@@ -81,7 +79,35 @@ static void	switch_checker(syntax_controller_t * sctrl, char symbol)
 
 // _________________________________________________________CHECK FIGURE BRACKET
 
-static regexp_ret_code_t check_figure_bracket(	syntax_controller_t * sctrl,
+static regexp_ret_code_t	check_square_bracket(syntax_controller_t * sctrl, char symbol)
+{
+	if (check_flag(sctrl->hflags, FLAG_START_BACKSLASH) == true)
+	{
+		unset_flag(&sctrl->hflags, FLAG_START_BACKSLASH);
+	}
+	else if (symbol == '\\')
+	{
+		set_flag(&sctrl->hflags, FLAG_START_BACKSLASH);
+	}
+	else if (symbol == ']')
+	{
+		if (sctrl->char_counter < 2)
+		{
+			return (REGEXP_ARG_WRONG_REGEXP);
+		}
+		printf("sctrl->char_counter %zu\n", sctrl->char_counter);
+		unset_flag(&sctrl->hflags, FLAG_SQUARE_BRACKET);
+		sctrl->char_counter = 0;
+	}
+
+	++sctrl->char_counter;
+
+	return (REGEXP_OK);
+}
+
+// _________________________________________________________CHECK FIGURE BRACKET
+
+static regexp_ret_code_t	check_figure_bracket(syntax_controller_t * sctrl,
 												char symbol,
 												size_t symbol_id)
 {
@@ -104,7 +130,6 @@ static regexp_ret_code_t check_figure_bracket(	syntax_controller_t * sctrl,
 	}
 	else if (ft_strchar("}", symbol) != NULL)
 	{
-		printf("point 1\n");
 		return (REGEXP_ARG_WRONG_REGEXP);
 	}
 	else
@@ -127,7 +152,6 @@ regexp_ret_code_t	check_backslash(syntax_controller_t * sctrl, char symbol)
 	}
 	else if (ft_strchar("[{()|\\", symbol) == NULL)
 	{
-		printf("point 2\n");
 		return (REGEXP_ARG_WRONG_REGEXP);
 	}
 	else
@@ -155,7 +179,6 @@ regexp_ret_code_t	check_common(syntax_controller_t * sctrl, char symbol)
 		}
 		else
 		{
-			printf("point 3\n");
 			return (REGEXP_ARG_WRONG_REGEXP);
 		}
 	}
@@ -177,8 +200,11 @@ regexp_ret_code_t	check_syntax(const char * regexp)
 		/* check state */
 		if (check_flag(sctrl.hflags, FLAG_SQUARE_BRACKET) == true)
 		{
-			if (regexp[i] == ']')
-				unset_flag(&sctrl.hflags, FLAG_SQUARE_BRACKET);
+			ret = check_square_bracket(&sctrl, regexp[i]);
+			if (ret < REGEXP_OK)
+			{
+				return (ret);
+			}
 		}
 		else if (check_flag(sctrl.hflags, FLAG_FIGURE_BRACKET) == true)
 		{
@@ -211,7 +237,6 @@ regexp_ret_code_t	check_syntax(const char * regexp)
 		check_flag(sctrl.hflags, FLAG_FIGURE_BRACKET) == true ||
 		sctrl.num_round_bracket != 0)
 	{
-		printf("point 4 %u %zu\n", sctrl.hflags, sctrl.num_round_bracket);
 		return (REGEXP_ARG_WRONG_REGEXP);
 	}
 

@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:04:47 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/07 02:20:15 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/13 09:47:29 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ typedef uint8_t hflags_t;
 typedef struct 
 {
 	hflags_t	hflags;
+	size_t		char_counter;
 	size_t		num_round_bracket;
 }	syntax_controller_t;
 
