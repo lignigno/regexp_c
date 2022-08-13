@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:02:52 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/13 11:14:38 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/13 11:30:18 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,14 @@ static regexp_ret_code_t	check_square_bracket(syntax_controller_t * sctrl, char 
 	{
 		set_flag(&sctrl->hflags, FLAG_BACKSLASH_START);
 	}
+	else if (ft_strchar("^]", symbol) != NULL && sctrl->char_counter < 2)
+	{
+		sctrl->char_counter = (symbol == ']') ? 1 : 0;
+	}
+	else if (symbol == ']' && sctrl->char_counter < 2)
+	{
+		sctrl->char_counter = 1;
+	}
 	else if (symbol == ']')
 	{
 		if (sctrl->char_counter < 2)
@@ -142,7 +150,7 @@ static regexp_ret_code_t	check_figure_bracket(syntax_controller_t * sctrl,
 
 // ______________________________________________________________CHECK BACKSLASH
 
-regexp_ret_code_t	check_backslash(syntax_controller_t * sctrl, char symbol)
+static regexp_ret_code_t	check_backslash(syntax_controller_t * sctrl, char symbol)
 {
 	if (check_flag(sctrl->hflags, FLAG_BACKSLASH_START) == false)
 	{
@@ -163,7 +171,7 @@ regexp_ret_code_t	check_backslash(syntax_controller_t * sctrl, char symbol)
 
 // ______________________________________________________________CHECK BACKSLASH
 
-regexp_ret_code_t	check_common(syntax_controller_t * sctrl, char symbol)
+static regexp_ret_code_t	check_common(syntax_controller_t * sctrl, char symbol)
 {
 	if (symbol == ROUND_BRACKET)
 	{
