@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:02:52 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/13 09:55:27 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/13 10:09:24 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ static regexp_ret_code_t	check_square_bracket(syntax_controller_t * sctrl, char 
 		{
 			return (REGEXP_ARG_WRONG_REGEXP);
 		}
-		printf("sctrl->char_counter %zu\n", sctrl->char_counter);
 		unset_flag(&sctrl->hflags, FLAG_SQUARE_BRACKET);
 		sctrl->char_counter = 0;
 	}
