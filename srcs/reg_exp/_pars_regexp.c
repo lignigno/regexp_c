@@ -244,17 +244,25 @@ static regexp_ret_code_t	parse_single_symbol(	const char * regexp,
 	while (	regexp[*i] != BACK_SQUARE_BRACKET ||
 			check_flag(rule->hflags, FLAG_BACKSLASH) == true)
 	{
-		unset_flag(&rule->hflags, FLAG_BACKSLASH);
-
-		if (check_flag(rule->hflags, FLAG_BACKSLASH) == false)
+		/* skip only backslash and remember his */
+		if (regexp[*i] == BACKSLASH)
 		{
-			if (regexp[*i] == BACKSLASH)
+			set_flag(&rule->hflags, FLAG_BACKSLASH);
+			++(*i);
+			continue ;
+		}
+		else if (check_flag(rule->hflags, FLAG_BACKSLASH) == true)
+		{
+			unset_flag(&rule->hflags, FLAG_BACKSLASH);
+		}
+
+		/* get range if the next symbol dash and the following symbol BACK_SQUARE_BRACKET */
+		if (regexp[*i + 1] == DASH &&
+			regexp[*i + 2] != BACK_SQUARE_BRACKET)
+		{
+			for (size_t j = 0; j < 4; ++j)
 			{
-				set_flag(&rule->hflags, FLAG_BACKSLASH);
-			}
-			else if (regexp[*i] == DASH)
-			{
-				for (size_t j = 0; j < 2; ++j)
+				if (j == 0 || (j == 2 && regexp[*i] != BACKSLASH) || j == 3)
 				{
 					if (ft_join(&rule->range, &regexp[*i], 1) == false)
 					{
@@ -263,36 +271,16 @@ static regexp_ret_code_t	parse_single_symbol(	const char * regexp,
 						free(rule);
 						return (REGEXP_ERR_MALLOC);
 					}
-					++(*i);
+					if (j > 1)
+						break ;
 				}
-				++rule->num_ranges;
+				++(*i);
 			}
-			else if (ft_strchar(rule->str, regexp[*i]) == NULL)
-			{
-				if (ft_join(&rule->str, &regexp[*i], 1) == false)
-				{
-					free(rule->str);
-					free(rule->range);
-					free(rule);
-					return (REGEXP_ERR_MALLOC);
-				}
-			}
+			++rule->num_ranges;
 		}
-
-		++(*i);
-
-		/* skip only backslash and remember his */
-		if (regexp[*i] == BACKSLASH)
+		else
 		{
-			set_flag(&rule->hflags, FLAG_BACKSLASH);
-			++(*i);
-			continue ;
-		}
-
-		if (regexp[*i + 1] == DASH &&
-			regexp[*i + 2] != BACK_SQUARE_BRACKET)
-		{
-			if (ft_join(&rule->range, &regexp[*i], 1) == false)
+			if (ft_join(&rule->str, &regexp[*i], 1) == false)
 			{
 				free(rule->str);
 				free(rule->range);
@@ -300,7 +288,6 @@ static regexp_ret_code_t	parse_single_symbol(	const char * regexp,
 				return (REGEXP_ERR_MALLOC);
 			}
 		}
-		else if (regexp[*i + 1])
 		++(*i);
 	}
 
