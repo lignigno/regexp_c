@@ -6,47 +6,14 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:02:52 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/13 11:30:18 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/26 21:09:04 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
+// #include <stdio.h>
 #include "_check_regexp_encaps.h"
 
-enum flag_e
-{
-	FLAG_SQUARE_BRACKET			= 0b1000000,
-	FLAG_FIGURE_BRACKET			= 0b0100000,
-	FLAG_FIGURE_BRACKET_DIGIT	= 0b0010000,
-	FLAG_FIGURE_BRACKET_COMMA	= 0b0001000,
-	FLAG_FIGURE_BRACKET_CHECKED	= 0b0000100,
-	FLAG_BACKSLASH				= 0b0000010,
-	FLAG_BACKSLASH_START		= 0b0000001,
-};
-
 // _________________________________________________________________SUBFUNCTIONS
-
-// _____________________________________________________________________SET FLAG
-
-inline static void	set_flag(hflags_t * handler, hflags_t flag_mask)
-{
-	*handler |= flag_mask;
-}
-
-// ___________________________________________________________________UNSET FLAG
-
-inline static void	unset_flag(hflags_t * handler, hflags_t flag_mask)
-{
-	flag_mask = ~flag_mask;
-	*handler &= flag_mask;
-}
-
-// ___________________________________________________________________CHECK FLAG
-
-inline static bool	check_flag(hflags_t handler, hflags_t flag_mask)
-{
-	return ((handler & flag_mask) == flag_mask);
-}
 
 // _______________________________________________________________SWITCH CHECKER
 
@@ -82,32 +49,45 @@ static void	switch_checker(syntax_controller_t * sctrl, char symbol)
 
 static regexp_ret_code_t	check_square_bracket(syntax_controller_t * sctrl, char symbol)
 {
-	if (check_flag(sctrl->hflags, FLAG_BACKSLASH_START) == true)
+	if (check_flag(sctrl->hflags, FLAG_BACKSLASH_START) == true &&
+		check_flag(sctrl->hflags, FLAG_DASH) == false)
 	{
 		unset_flag(&sctrl->hflags, FLAG_BACKSLASH_START);
 	}
-	else if (symbol == '\\')
+	else if (symbol == BACKSLASH)
 	{
 		set_flag(&sctrl->hflags, FLAG_BACKSLASH_START);
 	}
 	else if (ft_strchar("^]", symbol) != NULL && sctrl->char_counter < 2)
 	{
-		sctrl->char_counter = (symbol == ']') ? 1 : 0;
+		sctrl->char_counter = (symbol == BACK_SQUARE_BRACKET) ? 1 : 0;
 	}
-	else if (symbol == ']' && sctrl->char_counter < 2)
+	else if (check_flag(sctrl->hflags, FLAG_DASH) == true)
 	{
-		sctrl->char_counter = 1;
+		if (sctrl->previous_symbol > symbol)
+		{
+			return (REGEXP_ARG_WRONG_REGEXP);
+		}
+		unset_flag(&sctrl->hflags, FLAG_DASH);
 	}
-	else if (symbol == ']')
+	else if (symbol == DASH && sctrl->char_counter > 1)
+	{
+		set_flag(&sctrl->hflags, FLAG_DASH);
+	}
+	else if (symbol == BACK_SQUARE_BRACKET &&
+			check_flag(sctrl->hflags, FLAG_BACKSLASH_START) == false)
 	{
 		if (sctrl->char_counter < 2)
 		{
 			return (REGEXP_ARG_WRONG_REGEXP);
 		}
+		unset_flag(&sctrl->hflags, FLAG_DASH);
 		unset_flag(&sctrl->hflags, FLAG_SQUARE_BRACKET);
 		sctrl->char_counter = 0;
 	}
 
+	if (check_flag(sctrl->hflags, FLAG_DASH) == false)
+		sctrl->previous_symbol = symbol;
 	++sctrl->char_counter;
 
 	return (REGEXP_OK);
@@ -127,12 +107,12 @@ static regexp_ret_code_t	check_figure_bracket(syntax_controller_t * sctrl,
 	{
 		set_flag(&sctrl->hflags, FLAG_FIGURE_BRACKET_DIGIT);
 	}
-	else if (symbol == ',' &&
+	else if (symbol == COMMA &&
 			check_flag(sctrl->hflags, FLAG_FIGURE_BRACKET_COMMA) == false)
 	{
 		set_flag(&sctrl->hflags, FLAG_FIGURE_BRACKET_COMMA);
 	}
-	else if (symbol == '}' &&
+	else if (symbol == BACKSLASH &&
 			check_flag(sctrl->hflags, FLAG_FIGURE_BRACKET_DIGIT) == true)
 	{
 		return (REGEXP_ARG_WRONG_REGEXP);
@@ -204,7 +184,6 @@ regexp_ret_code_t	check_syntax(const char * regexp)
 		switch_checker(&sctrl, regexp[i]);
 
 		/* check state */
-		// printf("symbol_id %zu '%c' %hhu\n", i, regexp[i], sctrl.hflags);
 		if (check_flag(sctrl.hflags, FLAG_SQUARE_BRACKET) == true)
 		{
 			ret = check_square_bracket(&sctrl, regexp[i]);
@@ -241,6 +220,7 @@ regexp_ret_code_t	check_syntax(const char * regexp)
 
 	/* check that all brackets are closed */
 	if (check_flag(sctrl.hflags, FLAG_SQUARE_BRACKET) == true ||
+		check_flag(sctrl.hflags, BACKSLASH) == true ||
 		sctrl.num_round_bracket != 0)
 	{
 		return (REGEXP_ARG_WRONG_REGEXP);

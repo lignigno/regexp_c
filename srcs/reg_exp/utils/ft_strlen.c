@@ -1,27 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strchar.c                                       :+:      :+:    :+:   */
+/*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/06 20:08:37 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/07 03:18:14 by lignigno         ###   ########.fr       */
+/*   Created: 2022/08/23 21:48:03 by lignigno          #+#    #+#             */
+/*   Updated: 2022/08/23 21:52:27 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.h"
 
-char *ft_strchar(const char * str, char c)
+size_t	ft_strlen(const char * str)
 {
-	if (str == NULL)
-		return NULL;
-	while (str[0] != '\0')
-	{
-		if (str[0] == c)
-			return ((char *)str);
-		++str;
-	}
+	size_t	i;
 
-	return (NULL);
+	if (str == NULL)
+		return (0);
+	i = 0;
+	while (str[i] != '\0')
+		++i;
+	return (i);
 }

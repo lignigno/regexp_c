@@ -1,20 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.h                                            :+:      :+:    :+:   */
+/*   ft_strchar.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/06 20:06:28 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/07 03:16:49 by lignigno         ###   ########.fr       */
+/*   Created: 2022/08/06 20:08:37 by lignigno          #+#    #+#             */
+/*   Updated: 2022/08/23 21:53:05 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-# define UTILS_H
+#include "utils.h"
 
-# include <stdlib.h>
+char *ft_strchar(const char * str, char c)
+{
+	if (str == NULL)
+		return (NULL);
+	while (str[0] != '\0')
+	{
+		if (str[0] == c)
+			return ((char *)str);
+		++str;
+	}
 
-char *ft_strchar(const char * str, char c);
-
-#endif // UTILS_H
+	return (NULL);
+}
