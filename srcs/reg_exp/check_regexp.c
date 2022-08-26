@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 04:30:26 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/27 00:01:12 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/27 01:34:20 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ static char *	flag_names[] = {
 	"FLAG_FIGURE_BRACKET_CHECKED",
 	"FLAG_BACKSLASH",
 	"FLAG_BACKSLASH_START",
-	"FLAG_SUBPATTERN",
+	"FLAG_SUBPATTERN_BEGIN",
+	"FLAG_SUBPATTERN_END",
 	"FLAG_SINGLE_SYMBOL",
 	"FLAG_REVERSE",
 	"FLAG_REPEATER",
@@ -44,7 +45,7 @@ void print_rules(const regexp_rules_t * rules)
 		printf("current %p\n", rules);
 
 		printf("%-*s :\n", WIDTH_COLUMN, "hflags");
-		for (size_t i = 0; i < 15 /* num of flags */ ; i++)
+		for (size_t i = 0; i < 16 /* num of flags */ ; i++)
 		{
 			if (check_flag(rules->hflags, FLAG_SQUARE_BRACKET >> i))
 				printf("\t- %s\n", flag_names[i]);

@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:04:47 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/25 17:41:45 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/27 01:56:26 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,21 +33,22 @@
  */
 enum flag_e
 {
-	FLAG_SQUARE_BRACKET			= 0b100000000000000, /*  */
-	FLAG_FIGURE_BRACKET			= 0b010000000000000, /*  */
-	FLAG_FIGURE_BRACKET_DIGIT	= 0b001000000000000, /*  */
-	FLAG_FIGURE_BRACKET_COMMA	= 0b000100000000000, /*  */
-	FLAG_FIGURE_BRACKET_CHECKED	= 0b000010000000000, /*  */
-	FLAG_BACKSLASH				= 0b000001000000000, /*  */
-	FLAG_BACKSLASH_START		= 0b000000100000000, /*  */
-	FLAG_SUBPATTERN				= 0b000000010000000, /* rule () */
-	FLAG_SINGLE_SYMBOL			= 0b000000001000000, /* rule [] */
-	FLAG_REVERSE				= 0b000000000100000, /* reverse rule [] when '^' was set */
-	FLAG_REPEATER				= 0b000000000010000, /* rule {} */
-	FLAG_SIMPLE					= 0b000000000001000, /* rule some symbols */
-	FLAG_FROM					= 0b000000000000100, /*  */
-	FLAG_TO						= 0b000000000000010, /*  */
-	FLAG_DASH					= 0b000000000000001, /*  */
+	FLAG_SQUARE_BRACKET			= 0b1000000000000000, /*  */
+	FLAG_FIGURE_BRACKET			= 0b0100000000000000, /*  */
+	FLAG_FIGURE_BRACKET_DIGIT	= 0b0010000000000000, /*  */
+	FLAG_FIGURE_BRACKET_COMMA	= 0b0001000000000000, /*  */
+	FLAG_FIGURE_BRACKET_CHECKED	= 0b0000100000000000, /*  */
+	FLAG_BACKSLASH				= 0b0000010000000000, /*  */
+	FLAG_BACKSLASH_START		= 0b0000001000000000, /*  */
+	FLAG_SUBPATTERN_BEGIN		= 0b0000000100000000, /*  */
+	FLAG_SUBPATTERN_END			= 0b0000000010000000, /*  */
+	FLAG_SINGLE_SYMBOL			= 0b0000000001000000, /* rule [] */
+	FLAG_REVERSE				= 0b0000000000100000, /* reverse rule [] when '^' was set */
+	FLAG_REPEATER				= 0b0000000000010000, /* rule {} */
+	FLAG_SIMPLE					= 0b0000000000001000, /* rule some symbols */
+	FLAG_FROM					= 0b0000000000000100, /*  */
+	FLAG_TO						= 0b0000000000000010, /*  */
+	FLAG_DASH					= 0b0000000000000001, /*  */
 };
 
 /* Type of flag holder */

@@ -75,11 +75,15 @@ static regexp_ret_code_t	parse_subpattern(const char * regexp,
 	*rule = (regexp_rules_t){0};
 
 	/* parsing */
+	if (regexp[*i] == ROUND_BRACKET)
+		set_flag(&rule->hflags, FLAG_SUBPATTERN_BEGIN);
+	else
+		set_flag(&rule->hflags, FLAG_SUBPATTERN_END);
 	++(*i);
 
 	/* end logic */
 	*current_rule = rule;
-	set_flag(&rule->hflags, FLAG_SUBPATTERN);
+
 
 	return (REGEXP_OK);
 }
@@ -172,14 +176,19 @@ static regexp_ret_code_t	parse_repeater(	const char * regexp,
 											regexp_rules_t * current_rule,
 											size_t * i)
 {
-	if (check_flag(current_rule->hflags, FLAG_SUBPATTERN) == true)
+	size_t	counter;
+
+	if (check_flag(current_rule->hflags, FLAG_SUBPATTERN_END) == true)
 	{
-		do
+		counter = 1;
+		while (counter > 0)
 		{
 			current_rule = current_rule->previous;
+			if (check_flag(current_rule->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+				--counter;
+			else if (check_flag(current_rule->hflags, FLAG_SUBPATTERN_END) == true)
+				++counter;
 		}
-		while (	current_rule != NULL &&
-				check_flag(current_rule->hflags, FLAG_SUBPATTERN) == false);
 	}
 
 	/* parsing */
