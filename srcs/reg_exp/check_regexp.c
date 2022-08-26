@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 04:30:26 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/26 21:04:49 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/26 23:16:05 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void print_rules(const regexp_rules_t * rules)
 regexp_ret_code_t check_regexp(const char * str, const char * regexp)
 {
 	regexp_ret_code_t	ret;
-	regexp_rules_t *	parse_rules;
+	// regexp_rules_t *	parse_rules;
 
 	if (str == NULL || regexp == NULL)
 	{
@@ -89,14 +89,14 @@ regexp_ret_code_t check_regexp(const char * str, const char * regexp)
 	}
 
 	printf("point 2\n");
-	ret = parse_regexp(regexp, &parse_rules);
-	if (ret < REGEXP_OK)
-	{
-		return (ret);
-	}
+	// ret = parse_regexp(regexp, &parse_rules);
+	// if (ret < REGEXP_OK)
+	// {
+	// 	return (ret);
+	// }
 
 	printf("point 3\n");
-	print_rules(parse_rules);
+	// print_rules(parse_rules);
 	// return (check_str(str, parse_rules));
 	return (REGEXP_OK);
 }

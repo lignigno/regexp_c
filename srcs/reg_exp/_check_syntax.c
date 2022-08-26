@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:02:52 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/26 21:09:04 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/26 23:20:39 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,18 +62,6 @@ static regexp_ret_code_t	check_square_bracket(syntax_controller_t * sctrl, char 
 	{
 		sctrl->char_counter = (symbol == BACK_SQUARE_BRACKET) ? 1 : 0;
 	}
-	else if (check_flag(sctrl->hflags, FLAG_DASH) == true)
-	{
-		if (sctrl->previous_symbol > symbol)
-		{
-			return (REGEXP_ARG_WRONG_REGEXP);
-		}
-		unset_flag(&sctrl->hflags, FLAG_DASH);
-	}
-	else if (symbol == DASH && sctrl->char_counter > 1)
-	{
-		set_flag(&sctrl->hflags, FLAG_DASH);
-	}
 	else if (symbol == BACK_SQUARE_BRACKET &&
 			check_flag(sctrl->hflags, FLAG_BACKSLASH_START) == false)
 	{
@@ -84,6 +72,22 @@ static regexp_ret_code_t	check_square_bracket(syntax_controller_t * sctrl, char 
 		unset_flag(&sctrl->hflags, FLAG_DASH);
 		unset_flag(&sctrl->hflags, FLAG_SQUARE_BRACKET);
 		sctrl->char_counter = 0;
+	}
+	else if (check_flag(sctrl->hflags, FLAG_DASH) == true)
+	{
+		if (sctrl->previous_symbol > symbol)
+		{
+			return (REGEXP_ARG_WRONG_REGEXP);
+		}
+		if (sctrl->previous_symbol == '\0')
+			unset_flag(&sctrl->hflags, FLAG_DASH);
+		else
+			sctrl->previous_symbol = '\0';
+		unset_flag(&sctrl->hflags, FLAG_BACKSLASH_START);
+	}
+	else if (symbol == DASH && sctrl->char_counter > 1)
+	{
+		set_flag(&sctrl->hflags, FLAG_DASH);
 	}
 
 	if (check_flag(sctrl->hflags, FLAG_DASH) == false)
