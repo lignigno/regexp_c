@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 04:30:26 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/27 01:34:20 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/27 22:22:00 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,14 @@ regexp_ret_code_t check_regexp(const char * str, const char * regexp)
 		return (ret);
 	}
 
-	printf("point 3\n");
 	print_rules(parse_rules);
-	// return (check_str(str, parse_rules));
-	return (REGEXP_OK);
+
+	printf("point 3\n");
+	ret = check_str(str, parse_rules);
+	if (ret < REGEXP_OK)
+	{
+		return (ret);
+	}
+
+	return (ret);
 }

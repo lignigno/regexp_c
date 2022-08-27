@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/07 02:28:23 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/25 10:15:45 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/27 22:04:54 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ int main(int argc, char const *argv[])
 	printf("\n%sneed \"%s\" and \"%s\"%s\n\n", BLUE_COLOR, argv[1], argv[2], UNSET_COLOR);
 
 	if (check_regexp(argv[1], argv[2]) < REGEXP_OK)
-		printf("%sNOT VALID%s\n", RED_COLOR, UNSET_COLOR);
+		printf("%sFAIL%s\n", RED_COLOR, UNSET_COLOR);
 	else
-		printf("%sVALID%s\n", GREEN_COLOR, UNSET_COLOR);
+		printf("%sSUCCESS%s\n", GREEN_COLOR, UNSET_COLOR);
 
 	return (0);
 }

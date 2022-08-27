@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:02:52 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/27 02:07:10 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/27 22:20:22 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,9 @@ static regexp_ret_code_t	check_square_bracket(syntax_controller_t * sctrl, char 
 }
 
 // _________________________________________________________CHECK FIGURE BRACKET
+
+/* for v2 */
+/* need add a check that the second number is greater than the first */
 
 static regexp_ret_code_t	check_figure_bracket(syntax_controller_t * sctrl,
 												char symbol,
