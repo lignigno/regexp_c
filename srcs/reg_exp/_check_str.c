@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:42:33 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/27 23:22:54 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/27 23:33:10 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,16 @@ regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * pars_rules)
 		if (pars_rules == NULL)
 			break ;
 
+		if (check_flag(pars_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+		{
+			set_repeater(pars_rules, &repeater);
+		}
+		if (check_flag(pars_rules->hflags, FLAG_SUBPATTERN_END) == true)
+		{
+			if (check_flag(pars_rules->hflags, FLAG_TO) == true ||
+				check_flag(pars_rules->hflags, FLAG_REPEATER) == false)
+				--repeater.to;
+		}
 		if (check_flag(pars_rules->hflags, FLAG_SINGLE_SYMBOL) == true)
 		{
 			set_repeater(pars_rules, &repeater);
@@ -125,7 +135,7 @@ regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * pars_rules)
 			if (repeater.from > 0)
 				return (REGEXP_FAIL);
 		}
-		if (check_flag(pars_rules->hflags, FLAG_SIMPLE) == true)
+		else if (check_flag(pars_rules->hflags, FLAG_SIMPLE) == true)
 		{
 			set_repeater(pars_rules, &repeater);
 			while (repeater.to > 0 && str[i] != '\0')
