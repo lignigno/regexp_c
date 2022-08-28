@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:04:47 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/28 03:00:38 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/28 07:45:51 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ typedef struct
 	char *		range;
 	size_t		num_ranges;
 	repeat_t	repeat;
+	repeat_t	mem_repeat;
 	void *		connect;
 	void *		previous;
 	void *		next;
@@ -121,7 +122,7 @@ regexp_ret_code_t	parse_regexp(const char * regexp, regexp_rules_t ** pars_rules
  * @return	REGEXP_OK	- The string matched the regular expression.
  *			REGEXP_FAIL	- The string does not match the regular expression.
  */
-regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * pars_rules);
+regexp_ret_code_t	check_str(const char * str, regexp_rules_t * pars_rules);
 
 /**
  * @brief	Add the flag to flag holder.

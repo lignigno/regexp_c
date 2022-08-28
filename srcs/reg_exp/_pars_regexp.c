@@ -238,6 +238,7 @@ static regexp_ret_code_t	parse_repeater(	const char * regexp,
 	}
 
 	/* end logic */
+	current_rule->mem_repeat = current_rule->repeat;
 	set_flag(&current_rule->hflags, FLAG_REPEATER);
 	++(*i);
 

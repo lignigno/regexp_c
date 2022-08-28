@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:42:33 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/28 03:45:11 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/28 09:07:58 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,34 +15,27 @@
 
 // _____________________________________________________________________________
 
-static void	set_repeater(const regexp_rules_t * rule, repeat_t * repeater)
+static void	set_repeater(regexp_rules_t * rule)
 {
 	if (check_flag(rule->hflags, FLAG_REPEATER) == true)
 	{
-		/* {from,to} */
-		/* {,to} */
-		if (check_flag(rule->hflags, FLAG_FROM | FLAG_TO) == true ||
-			check_flag(rule->hflags, FLAG_TO) == true)
-		{
-			*repeater = rule->repeat;
-		}
 		/* {from,} */
-		else if (check_flag(rule->hflags, FLAG_FROM) == true)
+		if (check_flag(rule->hflags, FLAG_FROM) == true &&
+			check_flag(rule->hflags, FLAG_TO) == false)
 		{
-			repeater->from = rule->repeat.from;
-			repeater->to = 1;
+			rule->repeat.to = 1;
 		}
 		/* {from} */
-		else
+		else if (check_flag(rule->hflags, FLAG_FROM | FLAG_TO) == false &&
+				check_flag(rule->hflags, FLAG_TO) == false)
 		{
-			repeater->from = rule->repeat.from;
-			repeater->to = rule->repeat.from;
+			rule->repeat.to = rule->repeat.from;
 		}
 	}
 	else
 	{
-		repeater->from = 1;
-		repeater->to = 1;
+		rule->repeat.from = 1;
+		rule->repeat.to = 1;
 	}
 }
 
@@ -51,9 +44,9 @@ static void	set_repeater(const regexp_rules_t * rule, repeat_t * repeater)
 static bool	check_single_symbol(const char * str, const regexp_rules_t * rule, size_t * i)
 {
 	size_t	num_ranges;
-	bool	good;
+	bool	ret;
 
-	good = !check_flag(rule->hflags, FLAG_REVERSE);
+	ret = !check_flag(rule->hflags, FLAG_REVERSE);
 	if (rule->range != NULL)
 	{
 		num_ranges = rule->num_ranges * 2;
@@ -61,19 +54,28 @@ static bool	check_single_symbol(const char * str, const regexp_rules_t * rule, s
 		{
 			if (rule->range[j] <= str[*i] && str[*i] <= rule->range[j + 1])
 			{
-				++(*i);
-				return (good);
+				if (ret == true)
+				{
+					++(*i);
+				}
+				return (ret);
 			}
 		}
 	}
 	if (ft_strchar(rule->str, str[*i]) != NULL)
 	{
-		++(*i);
-		return (good);
+		if (ret == true)
+		{
+			++(*i);
+		}
+		return (ret);
 	}
 
-	++(*i);
-	return (!good);
+	if (ret == false)
+	{
+		++(*i);
+	}
+	return (!ret);
 }
 
 // _____________________________________________________________________________
@@ -86,7 +88,9 @@ static bool	check_simple(const char * str, const regexp_rules_t * rule, size_t *
 	while (str[*i] != '\0' && rule->str[j] != '\0')
 	{
 		if (str[*i] != rule->str[j])
+		{
 			break ;
+		}
 		++(*i);
 		++j;
 	}
@@ -96,81 +100,116 @@ static bool	check_simple(const char * str, const regexp_rules_t * rule, size_t *
 
 // _____________________________________________________________________________
 
-regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * parse_rules)
+regexp_ret_code_t	check_str(const char * str, regexp_rules_t * parse_rules)
 {
-	size_t		i;
-	repeat_t	repeater;
+	size_t				i;
+	regexp_rules_t *	tmp_rule;
 
 	i = 0;
 	do
 	{
 		printf("befor {%c}\n", str[i]);
 		if (parse_rules == NULL)
-			break ;
-
-		// if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
-		// {
-		// 	set_repeater(parse_rules, &repeater);
-		// 	if (repeater.to > 0 && str[i] != '\0')
-		// 	{
-		// 		/* skip to next parse_rule */
-		// 	}
-		// 	else
-
-		// }
-		// if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_END) == true)
-		// {
-		// 	if (repeater.to > 0 && str[i] != '\0')
-		// 	{
-		// 		repeater.from -= (repeater.from > 0);
-		// 		if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
-		// 			check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
-		// 			--repeater.to;
-		// 		/* rollback */
-		// 	}
-		// 	else if (repeater.from > 0)
-		// 		return (REGEXP_FAIL);
-		// }
-		if (check_flag(parse_rules->hflags, FLAG_SINGLE_SYMBOL) == true)
 		{
-			set_repeater(parse_rules, &repeater);
-			while (repeater.to > 0 && str[i] != '\0')
+			break ;
+		}
+
+		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_END) == true)
+		{
+			printf("FLAG_SUBPATTERN_END\n");
+			// if (parse_rules->repeat.to > 0 && str[i] != '\0')
+			// {
+				tmp_rule = parse_rules;
+				parse_rules = parse_rules->connect;
+				parse_rules->repeat.from -= (parse_rules->repeat.from > 0);
+				if (check_flag(parse_rules->hflags, FLAG_REPEATER) == false ||
+					check_flag(parse_rules->hflags, FLAG_FROM) == false ||
+					check_flag(parse_rules->hflags, FLAG_TO) == true)
+				{
+					--parse_rules->repeat.to;
+				}
+				parse_rules = tmp_rule;
+				/* rollback */
+				parse_rules = parse_rules->connect;
+			// }
+		}
+		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+		{
+			printf("FLAG_SUBPATTERN_BEGIN\n");
+			printf("%zu %zu\n", parse_rules->repeat.from, parse_rules->repeat.to);
+			if (parse_rules->repeat.from == parse_rules->mem_repeat.from &&
+				parse_rules->repeat.to == parse_rules->mem_repeat.to)
+			{
+				set_repeater(parse_rules);
+			}
+			if (parse_rules->repeat.to <= 0 || str[i] == '\0')
+			{
+				if (parse_rules->repeat.from > 0)
+				{
+					return (REGEXP_FAIL);
+				}
+				parse_rules->repeat = parse_rules->mem_repeat;
+				parse_rules = parse_rules->connect;
+			}
+		}
+		else if (check_flag(parse_rules->hflags, FLAG_SINGLE_SYMBOL) == true)
+		{
+			printf("FLAG_SINGLE_SYMBOL\n");
+			set_repeater(parse_rules);
+			while (parse_rules->repeat.to > 0 && str[i] != '\0')
 			{
 				if (check_single_symbol(str, parse_rules, &i) == false)
 				{
 					break ;
 				}
-				repeater.from -= (repeater.from > 0);
-				if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
-					check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
-					--repeater.to;
+				parse_rules->repeat.from -= (parse_rules->repeat.from > 0);
+				if (check_flag(parse_rules->hflags, FLAG_REPEATER) == false ||
+					check_flag(parse_rules->hflags, FLAG_FROM) == false ||
+					check_flag(parse_rules->hflags, FLAG_TO) == true)
+				{
+					--parse_rules->repeat.to;
+				}
 			}
+			if (parse_rules->repeat.from > 0)
+			{
+				return (REGEXP_FAIL);
+			}
+			parse_rules->repeat = parse_rules->mem_repeat;
 		}
 		else if (check_flag(parse_rules->hflags, FLAG_SIMPLE) == true)
 		{
-			set_repeater(parse_rules, &repeater);
-			while (repeater.to > 0 && str[i] != '\0')
+			printf("FLAG_SIMPLE\n");
+			set_repeater(parse_rules);
+			while (parse_rules->repeat.to > 0 && str[i] != '\0')
 			{
 				if (check_simple(str, parse_rules, &i) == false)
 				{
 					break ;
 				}
-				repeater.from -= (repeater.from > 0);
-				if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
-					check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
-					--repeater.to;
+				parse_rules->repeat.from -= (parse_rules->repeat.from > 0);
+				if (check_flag(parse_rules->hflags, FLAG_REPEATER) == false ||
+					check_flag(parse_rules->hflags, FLAG_FROM) == false ||
+					check_flag(parse_rules->hflags, FLAG_TO) == true)
+				{
+					--parse_rules->repeat.to;
+				}
 			}
-			if (repeater.from > 0)
+			if (parse_rules->repeat.from > 0)
+			{
 				return (REGEXP_FAIL);
+			}
+			parse_rules->repeat = parse_rules->mem_repeat;
 		}
 
-		printf("after {%c}\n", str[i]);
+		printf("after {%c}\n\n", str[i]);
 
 		parse_rules = parse_rules->next;
 	}
-	while (str[i] != '\0' && parse_rules != NULL);
+	while (parse_rules != NULL);
 
 	if (str[i] != '\0' || parse_rules != NULL)
+	{
 		return (REGEXP_FAIL);
+	}
 	return (REGEXP_OK);
 }
