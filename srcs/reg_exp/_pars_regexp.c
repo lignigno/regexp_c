@@ -176,10 +176,12 @@ static regexp_ret_code_t	parse_repeater(	const char * regexp,
 											regexp_rules_t * current_rule,
 											size_t * i)
 {
-	size_t	counter;
+	size_t				counter;
+	regexp_rules_t *	tmp_rule;
 
 	if (check_flag(current_rule->hflags, FLAG_SUBPATTERN_END) == true)
 	{
+		tmp_rule = current_rule;
 		counter = 1;
 		while (counter > 0)
 		{
@@ -189,6 +191,7 @@ static regexp_ret_code_t	parse_repeater(	const char * regexp,
 			else if (check_flag(current_rule->hflags, FLAG_SUBPATTERN_END) == true)
 				++counter;
 		}
+		tmp_rule->connect = current_rule;
 	}
 
 	/* parsing */

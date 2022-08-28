@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:42:33 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/27 23:33:10 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/28 02:52:05 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,57 +96,70 @@ static bool	check_simple(const char * str, const regexp_rules_t * rule, size_t *
 
 // _____________________________________________________________________________
 
-regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * pars_rules)
+regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * parse_rules)
 {
 	size_t		i;
+	hflags_t	hflags;
 	repeat_t	repeater;
+	size_t		tmp_i;
 
 	i = 0;
 	do
 	{
 		printf("befor {%c}\n", str[i]);
-		if (pars_rules == NULL)
+		if (parse_rules == NULL)
 			break ;
 
-		if (check_flag(pars_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
 		{
-			set_repeater(pars_rules, &repeater);
-		}
-		if (check_flag(pars_rules->hflags, FLAG_SUBPATTERN_END) == true)
-		{
-			if (check_flag(pars_rules->hflags, FLAG_TO) == true ||
-				check_flag(pars_rules->hflags, FLAG_REPEATER) == false)
-				--repeater.to;
-		}
-		if (check_flag(pars_rules->hflags, FLAG_SINGLE_SYMBOL) == true)
-		{
-			set_repeater(pars_rules, &repeater);
-			while (repeater.to > 0 && str[i] != '\0')
+			set_repeater(parse_rules, &repeater);
+			if (repeater.to > 0 && str[i] != '\0')
 			{
-				if (check_single_symbol(str, pars_rules, &i) == false)
-				{
-					break ;
-				}
-				repeater.from -= (repeater.from > 0);
-				if (check_flag(pars_rules->hflags, FLAG_TO) == true ||
-					check_flag(pars_rules->hflags, FLAG_REPEATER) == false)
-					--repeater.to;
+				/* skip to next parse_rule */
 			}
-			if (repeater.from > 0)
+			else
+
+		}
+		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_END) == true)
+		{
+			if (repeater.to > 0 && str[i] != '\0')
+			{
+				repeater.from -= (repeater.from > 0);
+				if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
+					check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
+					--repeater.to;
+				/* rollback */
+			}
+			else if (repeater.from > 0)
 				return (REGEXP_FAIL);
 		}
-		else if (check_flag(pars_rules->hflags, FLAG_SIMPLE) == true)
+		if (check_flag(parse_rules->hflags, FLAG_SINGLE_SYMBOL) == true)
 		{
-			set_repeater(pars_rules, &repeater);
+			set_repeater(parse_rules, &repeater);
 			while (repeater.to > 0 && str[i] != '\0')
 			{
-				if (check_simple(str, pars_rules, &i) == false)
+				if (check_single_symbol(str, parse_rules, &i) == false)
 				{
 					break ;
 				}
 				repeater.from -= (repeater.from > 0);
-				if (check_flag(pars_rules->hflags, FLAG_TO) == true ||
-					check_flag(pars_rules->hflags, FLAG_REPEATER) == false)
+				if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
+					check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
+					--repeater.to;
+			}
+		}
+		else if (check_flag(parse_rules->hflags, FLAG_SIMPLE) == true)
+		{
+			set_repeater(parse_rules, &repeater);
+			while (repeater.to > 0 && str[i] != '\0')
+			{
+				if (check_simple(str, parse_rules, &i) == false)
+				{
+					break ;
+				}
+				repeater.from -= (repeater.from > 0);
+				if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
+					check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
 					--repeater.to;
 			}
 			if (repeater.from > 0)
@@ -155,11 +168,11 @@ regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * pars_rules)
 
 		printf("after {%c}\n", str[i]);
 
-		pars_rules = pars_rules->next;
+		parse_rules = parse_rules->next;
 	}
-	while (str[i] != '\0' && pars_rules != NULL);
+	while (str[i] != '\0' && parse_rules != NULL);
 
-	if (str[i] != '\0' || pars_rules != NULL)
+	if (str[i] != '\0' || parse_rules != NULL)
 		return (REGEXP_FAIL);
 	return (REGEXP_OK);
 }

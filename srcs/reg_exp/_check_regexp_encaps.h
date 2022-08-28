@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:04:47 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/27 01:56:26 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/28 03:00:38 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ typedef struct
 	char *		range;
 	size_t		num_ranges;
 	repeat_t	repeat;
+	void *		connect;
 	void *		previous;
 	void *		next;
 }	regexp_rules_t;
