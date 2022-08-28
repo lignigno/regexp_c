@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 04:30:26 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/27 22:22:00 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/28 03:47:44 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,8 @@ void print_rules(const regexp_rules_t * rules)
 		printf("\t- from : %zu\n", rules->repeat.from);
 		printf("\t- to   : %zu\n", rules->repeat.to);
 	
+		printf("%-*s : %p\n", WIDTH_COLUMN, "connect", rules->connect);
+		
 		printf("%-*s : %p\n", WIDTH_COLUMN, "previous", rules->previous);
 
 		printf("%-*s : %p\n", WIDTH_COLUMN, "next", rules->next);

@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:42:33 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/28 02:52:05 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/28 03:45:11 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,9 +99,7 @@ static bool	check_simple(const char * str, const regexp_rules_t * rule, size_t *
 regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * parse_rules)
 {
 	size_t		i;
-	hflags_t	hflags;
 	repeat_t	repeater;
-	size_t		tmp_i;
 
 	i = 0;
 	do
@@ -110,29 +108,29 @@ regexp_ret_code_t	check_str(const char * str, const regexp_rules_t * parse_rules
 		if (parse_rules == NULL)
 			break ;
 
-		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
-		{
-			set_repeater(parse_rules, &repeater);
-			if (repeater.to > 0 && str[i] != '\0')
-			{
-				/* skip to next parse_rule */
-			}
-			else
+		// if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+		// {
+		// 	set_repeater(parse_rules, &repeater);
+		// 	if (repeater.to > 0 && str[i] != '\0')
+		// 	{
+		// 		/* skip to next parse_rule */
+		// 	}
+		// 	else
 
-		}
-		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_END) == true)
-		{
-			if (repeater.to > 0 && str[i] != '\0')
-			{
-				repeater.from -= (repeater.from > 0);
-				if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
-					check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
-					--repeater.to;
-				/* rollback */
-			}
-			else if (repeater.from > 0)
-				return (REGEXP_FAIL);
-		}
+		// }
+		// if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_END) == true)
+		// {
+		// 	if (repeater.to > 0 && str[i] != '\0')
+		// 	{
+		// 		repeater.from -= (repeater.from > 0);
+		// 		if (check_flag(parse_rules->hflags, FLAG_TO) == true ||
+		// 			check_flag(parse_rules->hflags, FLAG_REPEATER) == false)
+		// 			--repeater.to;
+		// 		/* rollback */
+		// 	}
+		// 	else if (repeater.from > 0)
+		// 		return (REGEXP_FAIL);
+		// }
 		if (check_flag(parse_rules->hflags, FLAG_SINGLE_SYMBOL) == true)
 		{
 			set_repeater(parse_rules, &repeater);

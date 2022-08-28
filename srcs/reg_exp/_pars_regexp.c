@@ -61,10 +61,13 @@ static bool	is_repeater(const char * regexp)
 
 static regexp_ret_code_t	parse_subpattern(const char * regexp,
 											regexp_rules_t ** current_rule,
+											regexp_rules_t * last,
 											size_t * i)
 {
-	(void)regexp;
+	(void)last;
+	size_t				counter;
 	regexp_rules_t *	rule;
+	regexp_rules_t *	tmp_rule;
 
 	/* create rule */
 	rule = (regexp_rules_t *)malloc(sizeof(regexp_rules_t));
@@ -83,6 +86,22 @@ static regexp_ret_code_t	parse_subpattern(const char * regexp,
 
 	/* end logic */
 	*current_rule = rule;
+	if (check_flag(rule->hflags, FLAG_SUBPATTERN_END) == true)
+	{
+		tmp_rule = last;
+		counter = 1;
+		while (	counter > 0 &&
+				check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == false)
+		{
+			if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+				--counter;
+			else if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_END) == true)
+				++counter;
+			tmp_rule = tmp_rule->previous;
+		}
+		rule->connect = tmp_rule;
+		tmp_rule->connect = rule;
+	}
 
 
 	return (REGEXP_OK);
@@ -177,11 +196,9 @@ static regexp_ret_code_t	parse_repeater(	const char * regexp,
 											size_t * i)
 {
 	size_t				counter;
-	regexp_rules_t *	tmp_rule;
 
 	if (check_flag(current_rule->hflags, FLAG_SUBPATTERN_END) == true)
 	{
-		tmp_rule = current_rule;
 		counter = 1;
 		while (counter > 0)
 		{
@@ -191,7 +208,6 @@ static regexp_ret_code_t	parse_repeater(	const char * regexp,
 			else if (check_flag(current_rule->hflags, FLAG_SUBPATTERN_END) == true)
 				++counter;
 		}
-		tmp_rule->connect = current_rule;
 	}
 
 	/* parsing */
@@ -340,7 +356,7 @@ regexp_ret_code_t	parse_regexp(const char * regexp,
 		tmp = NULL;
 		if (regexp[i] == ROUND_BRACKET || regexp[i] == BACK_ROUND_BRACKET)
 		{
-			ret = parse_subpattern(regexp, &tmp, &i);
+			ret = parse_subpattern(regexp, &tmp, last, &i);
 			if (ret < REGEXP_OK)
 			{
 				return (ret);
