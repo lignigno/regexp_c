@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:42:33 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/30 00:21:43 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/30 01:07:22 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,11 +103,12 @@ static bool	check_simple(const char * str, const regexp_rules_t * rule, size_t *
 regexp_ret_code_t	check_str(const char * str, regexp_rules_t * parse_rules)
 {
 	size_t				i;
-	// size_t				mem_i;
-	// regexp_rules_t *	mem_rule;
 	regexp_rules_t *	tmp_rule;
+	regexp_rules_t *	next_step;
+	size_t				nesting_alternatives;
 
 	i = 0;
+	nesting_alternatives = 0;
 	do
 	{
 		printf("befor {%c}\n", str[i]);
@@ -135,11 +136,10 @@ regexp_ret_code_t	check_str(const char * str, regexp_rules_t * parse_rules)
 		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
 		{
 			printf("FLAG_SUBPATTERN_BEGIN\n");
-			// if (check_flag(parse_rules->hflags, FLAG_ALTERNATIVE) == true)
-			// {
-			// 	mem_i = i;
-				
-			// }
+			if (check_flag(parse_rules->hflags, FLAG_ALTERNATIVE) == true)
+			{
+				remember_alternative();
+			}
 			printf("%zu %zu\n", parse_rules->repeat.from, parse_rules->repeat.to);
 			if (parse_rules->repeat.from == parse_rules->mem_repeat.from &&
 				parse_rules->repeat.to == parse_rules->mem_repeat.to)
@@ -150,10 +150,18 @@ regexp_ret_code_t	check_str(const char * str, regexp_rules_t * parse_rules)
 			{
 				if (parse_rules->repeat.from > 0)
 				{
-					return (REGEXP_FAIL);
+					if (nesting_alternatives > 0)
+					{
+						call_alternative();
+					}
+					else
+						return (REGEXP_FAIL);
 				}
-				parse_rules->repeat = parse_rules->mem_repeat;
-				parse_rules = parse_rules->connect;
+				else
+				{
+					parse_rules->repeat = parse_rules->mem_repeat;
+					parse_rules = parse_rules->connect;
+				}
 			}
 		}
 		else if (check_flag(parse_rules->hflags, FLAG_SINGLE_SYMBOL) == true)

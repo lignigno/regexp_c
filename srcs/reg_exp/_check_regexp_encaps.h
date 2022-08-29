@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:04:47 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/29 04:59:30 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/30 00:35:59 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ typedef struct
 	char *		range;
 	size_t		num_ranges;
 	repeat_t	repeat;
+	size_t		mem_i;
 	repeat_t	mem_repeat;
 	void *		connect;
 	void *		previous;

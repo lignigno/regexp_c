@@ -182,32 +182,50 @@ static regexp_ret_code_t	parse_alternative(	regexp_rules_t ** result,
 		}
 	}
 
-	printf("p 3\n");
-	j = 0;
-	ret = parse_subpattern(")", &rule, *last, &j);
-	if (ret < REGEXP_OK)
+	for (j = 0; j < 2;)
 	{
-		return (ret);
+		ret = parse_subpattern(")(", &rule, *last, &j);
+		if (ret < REGEXP_OK)
+		{
+			return (ret);
+		}
+		rule->previous = *last;
+		(*last)->next = rule;
+		*last = rule;
+		set_flag(&rule->hflags, FLAG_ALTERNATIVE);
 	}
-	rule->previous = *last;
-	(*last)->next = rule;
-	*last = rule;
-	printf("pointer %p rule->hflags %u\n", rule, rule->hflags);
+	
 
-	printf("p 4\n");
+	// printf("p 3\n");
 
-	j = 0;
-	ret = parse_subpattern("(", &rule, NULL, &j);
-	if (ret < REGEXP_OK)
-	{
-		return (ret);
-	}
-	rule->previous = *last;
-	(*last)->next = rule;
-	*last = rule;
-	set_flag(&rule->hflags, FLAG_ALTERNATIVE);
-	printf("p 5\n");
-	printf("pointer %p rule->hflags %u\n", rule, rule->hflags);
+	// j = 0;
+	// ret = parse_subpattern(")", &rule, *last, &j);
+	// if (ret < REGEXP_OK)
+	// {
+	// 	return (ret);
+	// }
+	// rule->previous = *last;
+	// (*last)->next = rule;
+	// *last = rule;
+	// set_flag(&rule->hflags, FLAG_ALTERNATIVE);
+
+	// printf("pointer %p rule->hflags %u\n", rule, rule->hflags);
+
+	// printf("p 4\n");
+
+	// j = 0;
+	// ret = parse_subpattern("(", &rule, NULL, &j);
+	// if (ret < REGEXP_OK)
+	// {
+	// 	return (ret);
+	// }
+	// rule->previous = *last;
+	// (*last)->next = rule;
+	// *last = rule;
+	// set_flag(&rule->hflags, FLAG_ALTERNATIVE);
+
+	// printf("p 5\n");
+	// printf("pointer %p rule->hflags %u\n", rule, rule->hflags);
 
 	return (REGEXP_OK);
 }
