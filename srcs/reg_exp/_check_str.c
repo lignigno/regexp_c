@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/27 00:42:33 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/28 09:07:58 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/30 00:21:43 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,8 @@ static bool	check_simple(const char * str, const regexp_rules_t * rule, size_t *
 regexp_ret_code_t	check_str(const char * str, regexp_rules_t * parse_rules)
 {
 	size_t				i;
+	// size_t				mem_i;
+	// regexp_rules_t *	mem_rule;
 	regexp_rules_t *	tmp_rule;
 
 	i = 0;
@@ -117,25 +119,27 @@ regexp_ret_code_t	check_str(const char * str, regexp_rules_t * parse_rules)
 		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_END) == true)
 		{
 			printf("FLAG_SUBPATTERN_END\n");
-			// if (parse_rules->repeat.to > 0 && str[i] != '\0')
-			// {
-				tmp_rule = parse_rules;
-				parse_rules = parse_rules->connect;
-				parse_rules->repeat.from -= (parse_rules->repeat.from > 0);
-				if (check_flag(parse_rules->hflags, FLAG_REPEATER) == false ||
-					check_flag(parse_rules->hflags, FLAG_FROM) == false ||
-					check_flag(parse_rules->hflags, FLAG_TO) == true)
-				{
-					--parse_rules->repeat.to;
-				}
-				parse_rules = tmp_rule;
-				/* rollback */
-				parse_rules = parse_rules->connect;
-			// }
+			tmp_rule = parse_rules;
+			parse_rules = parse_rules->connect;
+			parse_rules->repeat.from -= (parse_rules->repeat.from > 0);
+			if (check_flag(parse_rules->hflags, FLAG_REPEATER) == false ||
+				check_flag(parse_rules->hflags, FLAG_FROM) == false ||
+				check_flag(parse_rules->hflags, FLAG_TO) == true)
+			{
+				--parse_rules->repeat.to;
+			}
+			parse_rules = tmp_rule;
+			/* rollback */
+			parse_rules = parse_rules->connect;
 		}
 		if (check_flag(parse_rules->hflags, FLAG_SUBPATTERN_BEGIN) == true)
 		{
 			printf("FLAG_SUBPATTERN_BEGIN\n");
+			// if (check_flag(parse_rules->hflags, FLAG_ALTERNATIVE) == true)
+			// {
+			// 	mem_i = i;
+				
+			// }
 			printf("%zu %zu\n", parse_rules->repeat.from, parse_rules->repeat.to);
 			if (parse_rules->repeat.from == parse_rules->mem_repeat.from &&
 				parse_rules->repeat.to == parse_rules->mem_repeat.to)

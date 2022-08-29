@@ -64,7 +64,6 @@ static regexp_ret_code_t	parse_subpattern(const char * regexp,
 											regexp_rules_t * last,
 											size_t * i)
 {
-	(void)last;
 	size_t				counter;
 	regexp_rules_t *	rule;
 	regexp_rules_t *	tmp_rule;
@@ -89,10 +88,11 @@ static regexp_ret_code_t	parse_subpattern(const char * regexp,
 	if (check_flag(rule->hflags, FLAG_SUBPATTERN_END) == true)
 	{
 		tmp_rule = last;
-		counter = 1;
-		while (	counter > 0 &&
+		counter = 0;
+		while (	counter > 0 ||
 				check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == false)
 		{
+			// printf("\n");
 			if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == true)
 				--counter;
 			else if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_END) == true)
@@ -103,6 +103,148 @@ static regexp_ret_code_t	parse_subpattern(const char * regexp,
 		tmp_rule->connect = rule;
 	}
 
+	return (REGEXP_OK);
+}
+
+// _____________________________________________________________PARS ALTERNATIVE
+
+#include <stdio.h>
+
+static regexp_ret_code_t	parse_alternative(	regexp_rules_t ** result,
+												regexp_rules_t ** last,
+												size_t * i,
+												bool * flag_alternative)
+{
+	regexp_ret_code_t	ret;
+	size_t				counter;
+	regexp_rules_t *	rule;
+	regexp_rules_t *	tmp_rule;
+	size_t				j;
+
+	*flag_alternative = true;
+	++(*i);
+
+	if (*result == NULL)
+	{
+		printf("p 1\n");
+		j = 0;
+		ret = parse_subpattern("(", result, NULL, &j);
+		if (ret < REGEXP_OK)
+		{
+			return (ret);
+		}
+		*last = *result;
+		set_flag(&(*result)->hflags, FLAG_ALTERNATIVE);
+		printf("pointer %p (*result)->hflags %u\n", *result, (*result)->hflags);
+	}
+	else
+	{
+		printf("p 2\n");
+		tmp_rule = *last;
+		counter = 0;
+		while (	tmp_rule->previous != NULL &&
+				(check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == false || counter > 0))
+		{
+			if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+				--counter;
+			else if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_END) == true)
+				++counter;
+			tmp_rule = tmp_rule->previous;
+		}
+
+		if (check_flag(tmp_rule->hflags, FLAG_ALTERNATIVE) == false)
+		{
+			j = 0;
+			ret = parse_subpattern("(", &rule, NULL, &j);
+			if (ret < REGEXP_OK)
+			{
+				return (ret);
+			}
+			set_flag(&rule->hflags, FLAG_ALTERNATIVE);
+
+			if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == true &&
+				counter <= 0)
+			{
+				rule->next = tmp_rule->next;
+				rule->previous = tmp_rule;
+				tmp_rule->next = rule;
+				if (rule->next != NULL)
+					((regexp_rules_t *)rule->next)->previous = rule;
+				else
+					*last = rule;
+			}
+			else
+			{
+				*result = rule;
+				rule->next = tmp_rule;
+				tmp_rule->previous = rule;
+			}
+		}
+	}
+
+	printf("p 3\n");
+	j = 0;
+	ret = parse_subpattern(")", &rule, *last, &j);
+	if (ret < REGEXP_OK)
+	{
+		return (ret);
+	}
+	rule->previous = *last;
+	(*last)->next = rule;
+	*last = rule;
+	printf("pointer %p rule->hflags %u\n", rule, rule->hflags);
+
+	printf("p 4\n");
+
+	j = 0;
+	ret = parse_subpattern("(", &rule, NULL, &j);
+	if (ret < REGEXP_OK)
+	{
+		return (ret);
+	}
+	rule->previous = *last;
+	(*last)->next = rule;
+	*last = rule;
+	set_flag(&rule->hflags, FLAG_ALTERNATIVE);
+	printf("p 5\n");
+	printf("pointer %p rule->hflags %u\n", rule, rule->hflags);
+
+	return (REGEXP_OK);
+}
+
+// ____________________________________________________________CLOSE ALTERNATIVE
+
+static regexp_ret_code_t	close_alternative(regexp_rules_t ** last)
+{
+	regexp_ret_code_t	ret;
+	regexp_rules_t *	tmp_rule;
+	size_t				counter;
+	size_t				j;
+
+	printf("p 6\n");
+	j = 0;
+	ret = parse_subpattern(")", (regexp_rules_t **)(&(*last)->next), *last, &j);
+	if (ret < REGEXP_OK)
+	{
+		return (ret);
+	}
+	((regexp_rules_t *)(*last)->next)->previous = *last;
+	*last = (*last)->next;
+
+	printf("p 7\n");
+	tmp_rule = (*last)->previous;
+	counter = 0;
+	while (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == false || counter > 0)
+	{
+		printf("%p %zu\n", tmp_rule, counter);
+		if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_BEGIN) == true)
+			--counter;
+		else if (check_flag(tmp_rule->hflags, FLAG_SUBPATTERN_END) == true)
+			++counter;
+		tmp_rule = tmp_rule->previous;
+	}
+	printf("%p %zu\n", tmp_rule, counter);
+	unset_flag(&tmp_rule->hflags, FLAG_ALTERNATIVE);
 
 	return (REGEXP_OK);
 }
@@ -137,6 +279,7 @@ static regexp_ret_code_t	parse_simple(	const char * regexp,
 			else if (regexp[*i] == ROUND_BRACKET ||
 					regexp[*i] == BACK_ROUND_BRACKET ||
 					regexp[*i] == SQUARE_BRACKET ||
+					regexp[*i] == ALTERNATIVE ||
 					is_repeater(&regexp[*i + 1]) == true)
 			{
 				if (flag_is_first == true)
@@ -349,15 +492,44 @@ regexp_ret_code_t	parse_regexp(const char * regexp,
 	regexp_rules_t *	result;
 	regexp_rules_t *	tmp;
 	regexp_rules_t *	last;
+	size_t				counter_subpattern;
+	bool				flag_alternative;
 
 	result = NULL;
 	last = NULL;
+	counter_subpattern = 0;
+	flag_alternative = false;
 	for (size_t i = 0; regexp[i] != '\0';)
 	{
 		tmp = NULL;
 		if (regexp[i] == ROUND_BRACKET || regexp[i] == BACK_ROUND_BRACKET)
 		{
+			/* if exist and BACK_ROUND_BRACKET */
+			if (flag_alternative == true)
+			{
+				if (counter_subpattern > 0 && regexp[i] == BACK_ROUND_BRACKET)
+				{
+					--counter_subpattern;
+				}
+				else if (regexp[i] == BACK_ROUND_BRACKET)
+				{
+					close_alternative(&last);
+				}
+				else
+				{
+					++counter_subpattern;
+				}
+			}
+
 			ret = parse_subpattern(regexp, &tmp, last, &i);
+			if (ret < REGEXP_OK)
+			{
+				return (ret);
+			}
+		}
+		else if (regexp[i] == ALTERNATIVE)
+		{
+			ret = parse_alternative(&result, &last, &i, &flag_alternative);
 			if (ret < REGEXP_OK)
 			{
 				return (ret);
@@ -403,6 +575,11 @@ regexp_ret_code_t	parse_regexp(const char * regexp,
 				last->previous = tmp;
 			}
 		}
+	}
+
+	if (flag_alternative == true)
+	{
+		close_alternative(&last);
 	}
 
 	*parse_rules = result;

@@ -6,7 +6,7 @@
 /*   By: lignigno <lignign@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/06 05:04:47 by lignigno          #+#    #+#             */
-/*   Updated: 2022/08/28 07:45:51 by lignigno         ###   ########.fr       */
+/*   Updated: 2022/08/29 04:59:30 by lignigno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # define BACK_SQUARE_BRACKET	']'
 # define FIGURE_BRACKET			'{'
 # define BACK_FIGURE_BRACKET	'}'
+# define ALTERNATIVE			'|'
 # define DASH					'-'
 # define COMMA					','
 # define BACKSLASH				'\\'
@@ -33,26 +34,27 @@
  */
 enum flag_e
 {
-	FLAG_SQUARE_BRACKET			= 0b1000000000000000, /*  */
-	FLAG_FIGURE_BRACKET			= 0b0100000000000000, /*  */
-	FLAG_FIGURE_BRACKET_DIGIT	= 0b0010000000000000, /*  */
-	FLAG_FIGURE_BRACKET_COMMA	= 0b0001000000000000, /*  */
-	FLAG_FIGURE_BRACKET_CHECKED	= 0b0000100000000000, /*  */
-	FLAG_BACKSLASH				= 0b0000010000000000, /*  */
-	FLAG_BACKSLASH_START		= 0b0000001000000000, /*  */
-	FLAG_SUBPATTERN_BEGIN		= 0b0000000100000000, /*  */
-	FLAG_SUBPATTERN_END			= 0b0000000010000000, /*  */
-	FLAG_SINGLE_SYMBOL			= 0b0000000001000000, /* rule [] */
-	FLAG_REVERSE				= 0b0000000000100000, /* reverse rule [] when '^' was set */
-	FLAG_REPEATER				= 0b0000000000010000, /* rule {} */
-	FLAG_SIMPLE					= 0b0000000000001000, /* rule some symbols */
-	FLAG_FROM					= 0b0000000000000100, /*  */
-	FLAG_TO						= 0b0000000000000010, /*  */
-	FLAG_DASH					= 0b0000000000000001, /*  */
+	FLAG_SQUARE_BRACKET			= 0b10000000000000000, /*  */
+	FLAG_FIGURE_BRACKET			= 0b01000000000000000, /*  */
+	FLAG_FIGURE_BRACKET_DIGIT	= 0b00100000000000000, /*  */
+	FLAG_FIGURE_BRACKET_COMMA	= 0b00010000000000000, /*  */
+	FLAG_FIGURE_BRACKET_CHECKED	= 0b00001000000000000, /*  */
+	FLAG_BACKSLASH				= 0b00000100000000000, /*  */
+	FLAG_BACKSLASH_START		= 0b00000010000000000, /*  */
+	FLAG_SUBPATTERN_BEGIN		= 0b00000001000000000, /*  */
+	FLAG_SUBPATTERN_END			= 0b00000000100000000, /*  */
+	FLAG_ALTERNATIVE			= 0b00000000010000000, /*  */
+	FLAG_SINGLE_SYMBOL			= 0b00000000001000000, /* rule [] */
+	FLAG_REVERSE				= 0b00000000000100000, /* reverse rule [] when '^' was set */
+	FLAG_REPEATER				= 0b00000000000010000, /* rule {} */
+	FLAG_SIMPLE					= 0b00000000000001000, /* rule some symbols */
+	FLAG_FROM					= 0b00000000000000100, /*  */
+	FLAG_TO						= 0b00000000000000010, /*  */
+	FLAG_DASH					= 0b00000000000000001, /*  */
 };
 
 /* Type of flag holder */
-typedef uint16_t hflags_t;
+typedef uint32_t hflags_t;
 
 /**
  * @brief	A structure that stores the necessary records
